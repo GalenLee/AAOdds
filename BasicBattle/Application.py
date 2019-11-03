@@ -12,14 +12,16 @@ defUnits = [4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 attUnits = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1]
 defUnits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 
-attUnits = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+attUnits =  [2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 defUnits =  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+
+attUnits = [1,1,1,1,1]
+defUnits = [1,1,1,1]
 
 attUnits = [3,3,1,1,1,1,1]
 defUnits = [4,2,2,2,2]
 
-attUnits = [1,1,1,1,1]
-defUnits = [1,1,1,1]
+
 
 
 totAttUnits = len(attUnits) 
@@ -46,7 +48,15 @@ for i in range(totalUnits - 1):
 
 # Plot
 x = probGrids[0]
-fig, (ax1, ax) = plt.subplots(1, 2, facecolor=(.8, .8, .8), figsize=(15, 10))
+#fig, ((ax1, ax), (ax2, ax3)) = plt.subplots(2, 2, facecolor=(.8, .8, .8), figsize=(15, 10))
+
+plt.close('all')
+fig = plt.figure(facecolor=(.8, .8, .8), figsize=(15, 10))
+ax = plt.subplot(221)
+ax2 = plt.subplot(222)
+ax1 = plt.subplot(212)
+plt.tight_layout(pad=3.0, w_pad=3.0, h_pad=3.0)
+
 
 
 N_points = 100000
@@ -55,7 +65,7 @@ x1 = np.random.randn(N_points)
 ax1.hist(x1, bins=n_bins)
 
 
-im = ax.imshow(x, interpolation='none', vmin=0, vmax=1, aspect='equal')
+im = ax.imshow(x,  vmin=0, vmax=1)  #, aspect='equal'    interpolation='none',
 ax.set_title('AA', fontsize = 18)
 ax.set_xlabel('X', fontsize = 18)
 ax.set_ylabel('Y', fontsize = 18)
