@@ -43,8 +43,10 @@ def calcCellWalk(sumGrid, cellProb,
             for dHits in range (defRem + 1):
                 if aHits > 0 or dHits > 0:
                     p = cellProb * attProbDist[aHits] * defProdDist[dHits] / factZeroHits
-                    aIdx = totAttUnits - attRem + dHits  # Notice att minus def hits
-                    dIdx = totDefUnits - defRem + aHits  # Notice def minus def hits
+                    aHitsCap = defRem if aHits > defRem else aHits
+                    dHitsCap = attRem if dHits > attRem else dHits
+                    aIdx = totAttUnits - attRem + dHitsCap  # Notice att minus def hits
+                    dIdx = totDefUnits - defRem + aHitsCap  # Notice def minus def hits
                     sumGrid[dIdx][aIdx] += p
 
 
