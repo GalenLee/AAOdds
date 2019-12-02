@@ -1,25 +1,30 @@
 import numpy as np
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from Functions import calcProbDist
-from Functions import calcCellWalk
-from Functions import calcIteration
+
+from Functions import runProbWalk
+from SimFunctions import XBattles
 from matplotlib.animation import FuncAnimation
 from matplotlib import animation
 
-# Enter units.
-attUnits =  [2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-defUnits =  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-attUnits = [3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-defUnits = [4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-attUnits = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1]
-defUnits = [4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-attUnits = [1,1,1,1,1]
-defUnits = [1,1,1,1]
+# Inputs
 attUnits = [3,3,1,1,1,1,1]
 defUnits = [4,2,2,2,2]
+#attUnits = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+#defUnits = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 
-attUnits = [3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-defUnits = [4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+pauseFrames1 = 11
+simXTicks = 10
+pauseFrames2 = 12
+animFrames = 8
+animTicks = 10
+pauseFrames3 = 13
+
+pltSize = 10.0
+fntSize = 12.0
+titleSize = 16.0
+saveGif = False
+gifFile = 'AA.gif'
 
 # Total units
 totAttUnits = len(attUnits) 
@@ -28,25 +33,34 @@ totAttUnitsP1 = totAttUnits + 1
 totDefUnitsP1 = totDefUnits + 1
 totalUnits = totAttUnits + totDefUnits
 
-# Calc dice roll distributions.
-attDists = calcProbDist(attUnits)
-defDists = calcProbDist(defUnits)
+# Main probability calculations.
+probGrids = runProbWalk(attUnits, defUnits)
 
-# Starting probability grid.  Set [0,0] to 1.0. This is for all attackers and defenders remaining (i.e. prob 1.0).
-probGrid = np.zeros((totDefUnitsP1, totAttUnitsP1), dtype = np.float64)
-probGrid[0][0] = 1.0
+# Simulations.
+countGrid = np.zeros((totDefUnitsP1, totAttUnitsP1), dtype = np.int32)
+countResults = []
+countGridsX = []
+#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 20)
+#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 16)
+#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 12)
+#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 8)
+#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 4)
+XBattles(countGridsX, countResults, countGrid, attUnits, defUnits, 25, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 75, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 150, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 250, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 500, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 1500, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 2500, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 5000, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 90000, 1)
+#XBattles(countGridsX, None, countGrid, attUnits, defUnits, 900000, 1)
+#XBattles(countGridsX, None, countGrid, attUnits, defUnits, 900000, 1)
 
-# Calculate all iterations.
-probGrids = []
-probGrids.append(probGrid)
-for i in range(totalUnits - 1): 
-    probGrid = calcIteration(probGrid, totAttUnits, totDefUnits, attDists, defDists)
-    probGrids.append(probGrid)
+############
+### Plot ###
+############
 
-# Plot
-pltSize = 10.0
-fntSize = 12.0
-titleSize = 16.0
 fig = plt.figure(facecolor=(.8, .8, .8), figsize=(pltSize, pltSize * .7))
 fig.suptitle('Axis and Allies Battle Outcomes', fontsize = titleSize)
 
@@ -60,39 +74,35 @@ ax = fig.add_subplot(grid[0, -1])
 probsAtt = probGrids[totalUnits-1][-1]     # Last row
 probAtt = sum(probsAtt) - probsAtt[-1]
 probMaxAtt = max(probsAtt)
-probsDef = probGrids[totalUnits-1][:,-1]  # Last column
+probsDef = probGrids[totalUnits-1][:,-1]   # Last column
 probDef = sum(probsDef) - probsDef[-1]
 probMaxDef = max(probsDef)
 maxAttDef = max(probMaxAtt, probMaxDef)
 bothLoseProd = probsAtt[-1]  # Same as probsDef[-1]
 
 # Attacker Bar Plot
-colorsAtt = [ (0.0, 0.25, 0.5) if (x > 0) else 'silver' for x in range(totAttUnitsP1)]
+colorsAtt = [ (0.25, 0.5, 0.75) if (x > 0) else 'silver' for x in range(totAttUnitsP1)]
 rectsAtt = axAtt.bar(np.arange(totAttUnits, -1, -1), np.flip(probsAtt), color = colorsAtt)
 axAtt.set_ylabel("{:.1%}".format(probAtt), fontsize = titleSize)
 axAtt.set_ylim([0, maxAttDef * 1.2])
 axAtt.set_xticks(np.arange(0, totAttUnitsP1, 1))
-#axAtt.set_xticklabels(np.arange(totAttUnits, -1, -1), fontsize = fntSize)
 axAtt.set_xticks(np.arange(-.5, totAttUnitsP1 , 1), minor = True)
-
-a = []
+axAttLabel = []
 for x in range(totAttUnits + 1):
-   a.append(str(totAttUnits - x) + '\n' + (str(attUnits[x]) if x<totAttUnits else ''))
-axAtt.set_xticklabels(a, fontsize = fntSize)
+   axAttLabel.append(str(totAttUnits - x) + '\n' + (str(attUnits[x]) if x<totAttUnits else ''))
+axAtt.set_xticklabels(axAttLabel, fontsize = fntSize)
 
 # Defender Bar Plot
-sideColors = [ (0.0, 0.25, 0.5) if (x > 0) else 'silver' for x in range(totDefUnitsP1)]
-sideRects = axDef.barh(np.arange(totDefUnits, -1, -1), np.flip(probGrids[totalUnits-1][:,-1]), color = sideColors)
+colorsDef = [ (0.25, 0.5, 0.75) if (x > 0) else 'silver' for x in range(totDefUnitsP1)]
+rectsDef = axDef.barh(np.arange(totDefUnits, -1, -1), np.flip(probGrids[totalUnits-1][:,-1]), color = colorsDef)
 axDef.set_xlabel("{:.1%}".format(probDef), fontsize = titleSize)
 axDef.set_xlim([0, maxAttDef * 1.2])
 axDef.set_yticks(np.arange(0, totDefUnitsP1, 1))
-#axDef.set_yticklabels(np.arange(totDefUnits, -1, -1), fontsize = fntSize)
 axDef.set_yticks(np.arange(-.5, totDefUnitsP1 , 1), minor = True)
-
-d = []
+axDefLabel = []
 for x in range(totDefUnits + 1):
-   d.append(str(totDefUnits - x) + ', ' + (str(defUnits[x]) if x<totDefUnits else '  '))
-axDef.set_yticklabels(d, fontsize = fntSize)
+   axDefLabel.append(str(totDefUnits - x) + ', ' + (str(defUnits[x]) if x<totDefUnits else '  '))
+axDef.set_yticklabels(axDefLabel, fontsize = fntSize)
 
 # Zero left text area
 ax.set_axis_off()
@@ -101,7 +111,6 @@ ev = sum(np.flip(probsAtt) * range(0, totAttUnitsP1)) - sum(np.flip(probsDef) * 
 evText = "{:.1f}".format(ev)
 txt = ax.text(0, .5, text + ' for 0\nEV = ' + evText, fontsize = titleSize)
 
-
 # Main heat map for random walk.
 im = axMain.imshow(probGrids[0],  vmin=0, vmax=1, cmap='Blues')
 axMain.set_xlabel('Attacker Units Left / Hit Power', fontsize = titleSize)
@@ -109,50 +118,185 @@ axMain.set_ylabel('Defender Units Left / Hit Power', fontsize = titleSize)
 axMain.invert_yaxis()
 axMain.set_xticks(np.arange(0, totAttUnitsP1, 1))
 axMain.set_yticks(np.arange(0, totDefUnitsP1 , 1))
-axMain.set_xticklabels(np.arange(totAttUnits, -1, -1), fontsize = fntSize)  # 'a\nb\nc'
+axMain.set_xticklabels(np.arange(totAttUnits, -1, -1), fontsize = fntSize)
 axMain.set_yticklabels(np.arange(totDefUnits, -1, -1), fontsize = fntSize)
 axMain.set_xticks(np.arange(-.5, totAttUnitsP1 , 1), minor = True)
 axMain.set_yticks(np.arange(-.5, totDefUnitsP1 , 1), minor = True)
 axMain.grid(which='minor', color='grey', linestyle='-', linewidth = 1)
 
+# Gets max value excluding 0, 0 cell.
+# Used in scaling heat map data.
+def MaxExcludeStartCell(gridCount):
+    result = 0
+    for d in range(totDefUnitsP1):
+        for a in range(totAttUnitsP1):
+            if d > 0 or a > 0:
+                result = max(result, gridCount[d, a])
+    return result
+
+simStepFrames = len(countResults)
+simXFrames = len(countGridsX)
+lastCountResultsGrid = None if simStepFrames == 0 else countResults[simStepFrames-1][0]
+maxCountForStepSim = 0 if simStepFrames == 0 else MaxExcludeStartCell(lastCountResultsGrid) * 1.25
+maxCountForStepBar = 0 if simStepFrames == 0 else max(max(lastCountResultsGrid[-1]), max(lastCountResultsGrid[:,-1]))
+factForStepBar = maxAttDef/maxCountForStepBar
+rects = []
 
 def init():
     im.set_array(probGrids[0])
+    for j in range(totAttUnits + 1): rectsAtt[j].set_height(0)
+    for j in range(totDefUnits + 1): rectsDef[j].set_width(0)
+    fig.suptitle('', fontsize = titleSize)
+    axAtt.set_ylabel('')
+    axDef.set_xlabel('')
+    txt.set_text('')
     return [im]
 
-def animate(i):
+def animate(frame):
 
-    # Main heat map (random walk)
-    maxProb = np.max(probGrids[i])
-    probs = probGrids[i].copy() / maxProb
-    im.set_array(probs)
+    # Clear any prior step rects
+    for p in rects: p.remove()
+    rects.clear()
 
-    # Show 
-    probsAttAnim = probGrids[i][-1]     # Last row
-    probAttAnim = sum(probsAttAnim) - probsAttAnim[-1]
-    probsDefAnim = probGrids[i][:,-1]  # Last column
-    probDefAnim = sum(probsDefAnim) - probsDefAnim[-1]
-    bothLoseProdAnim = probsAttAnim[-1]  # Same as probsDef[-1]
-    axAtt.set_ylabel("{:.1%}".format(probAttAnim), fontsize = titleSize)
-    axDef.set_xlabel("{:.1%}".format(probDefAnim), fontsize = titleSize)
+    if frame < simStepFrames:
 
-    textAnim = "{:.1%}".format(bothLoseProdAnim)
-    evAnim = sum(np.flip(probsAttAnim) * range(0, totAttUnitsP1)) - sum(np.flip(probsDefAnim) * range(0, totDefUnitsP1))
-    evTextAnim = "{:.1f}".format(evAnim)
-    txt.set_text(textAnim + ' for 0\nEV = ' + evTextAnim)
+        # Main heat map (random walk)
+        countResultsGrid = countResults[frame][0]
+        im.set_array(countResultsGrid / maxCountForStepSim)
+        txtSimulations = str(countResultsGrid[0][0])
+        fig.suptitle('Axis and Allies - Simulations ' + txtSimulations, fontsize = titleSize)
 
-    # Set attack outome bar heights
-    for j in range(totAttUnits + 1):
-        rectsAtt[j].set_height(probGrids[i][-1][totAttUnits-j])
+        stepAttRem = countResults[frame][1]
+        stepDefRem = countResults[frame][2]
+        barAnim = countResults[frame][3]
+        if barAnim:
 
-    # Set defendar outcome bar heights
-    for j in range(totDefUnits + 1):
-        sideRects[j].set_width(probGrids[i][:,-1][totDefUnits-j])
+            for j in range(totAttUnits + 1):
+                rectsAtt[j].set_height(countResultsGrid[-1][totAttUnits-j] * factForStepBar)
+
+            for j in range(totDefUnits + 1):
+                rectsDef[j].set_width(countResultsGrid[:,-1][totDefUnits-j] * factForStepBar)
+
+            if stepDefRem == 0:
+
+                stepAttLocX = totAttUnits -stepAttRem - .4
+                stepAttLocY = (countResultsGrid[-1][totAttUnits - stepAttRem] - 1) * factForStepBar
+                axAttRect = patches.Rectangle(
+                    (stepAttLocX, stepAttLocY), .8,  factForStepBar, 
+                    linewidth = 3, edgecolor = 'r', facecolor = 'none')
+                axAtt.add_patch(axAttRect)
+                rects.append(axAttRect)
+
+            if stepAttRem == 0:
+
+                stepDefLocX = totDefUnits -stepDefRem - .4
+                stepDefLocY = (countResultsGrid[:,-1][totDefUnits - stepDefRem] - 1) * factForStepBar
+                axDefRect = patches.Rectangle(
+                    (stepDefLocY, stepDefLocX), factForStepBar, .8, 
+                    linewidth = 3, edgecolor = 'r', facecolor = 'none')
+                axDef.add_patch(axDefRect)
+                rects.append(axDefRect)
+
+        else:
+            stepAttLoc = totAttUnits -stepAttRem - .5
+            stepDefLoc = totDefUnits - stepDefRem - .5
+            rect = patches.Rectangle(
+                (stepAttLoc, stepDefLoc), 1, 1, 
+                linewidth = 3, edgecolor = 'r', facecolor = 'none')
+            axMain.add_patch(rect)
+            rects.append(rect)
+
+    elif frame < simStepFrames + pauseFrames1:
+
+        pass
+
+    elif frame < simStepFrames + pauseFrames1 + simXFrames * simXTicks:
+
+        idx = (frame - simStepFrames  - pauseFrames1) // simXTicks
+        grid = countGridsX[idx]
+
+        txtSimulations = str(grid[0][0])
+        fig.suptitle('Axis and Allies - Simulations ' + txtSimulations, fontsize = titleSize)
+
+        a = MaxExcludeStartCell(grid) * (1.25 if idx == 0 else 1)
+        im.set_array(grid / a)
+
+        pGrid = grid.copy()/grid[0][0]
+        probsAttAnim = pGrid[-1]  
+        probAttAnim = sum(probsAttAnim) - probsAttAnim[-1]
+        probsDefAnim = pGrid[:,-1] 
+        probDefAnim = sum(probsDefAnim) - probsDefAnim[-1]
+        bothLoseProdAnim = probsAttAnim[-1] 
+        axAtt.set_ylabel("{:.1%}".format(probAttAnim), fontsize = titleSize)
+        axDef.set_xlabel("{:.1%}".format(probDefAnim), fontsize = titleSize)
+
+        for j in range(totAttUnits + 1):
+            rectsAtt[j].set_height(pGrid[-1][totAttUnits-j])
+
+        for j in range(totDefUnits + 1):
+            rectsDef[j].set_width(pGrid[:,-1][totDefUnits-j])
+
+    elif frame < simStepFrames + pauseFrames1 + simXFrames * simXTicks + pauseFrames2:
+
+        pass
+
+    elif frame < simStepFrames + pauseFrames1 + simXFrames * simXTicks + pauseFrames2 + animFrames * animTicks:
+
+        idx = (frame - simStepFrames  - pauseFrames1 - simXFrames * simXTicks - pauseFrames2) // animTicks
+
+        fig.suptitle('Axis and Allies - Exact Outcomes', fontsize = titleSize)
+        
+        i = totalUnits - 1 if idx == animFrames - 1 else idx
+
+        # Main heat map (random walk)
+        maxProb = np.max(probGrids[i])
+        probs = probGrids[i].copy() / maxProb
+        im.set_array(probs)
+
+        # Show 
+        probsAttAnim = probGrids[i][-1]     # Last row
+        probAttAnim = sum(probsAttAnim) - probsAttAnim[-1]
+        probsDefAnim = probGrids[i][:,-1]  # Last column
+        probDefAnim = sum(probsDefAnim) - probsDefAnim[-1]
+        bothLoseProdAnim = probsAttAnim[-1]  # Same as probsDef[-1]
+        axAtt.set_ylabel("{:.1%}".format(probAttAnim), fontsize = titleSize)
+        axDef.set_xlabel("{:.1%}".format(probDefAnim), fontsize = titleSize)
+
+        textAnim = "{:.1%}".format(bothLoseProdAnim)
+        evAnimAtt = sum(np.flip(probsAttAnim) * range(0, totAttUnitsP1)) 
+        evAnimDef = sum(np.flip(probsDefAnim) * range(0, totDefUnitsP1))
+        evAnim = evAnimAtt - evAnimDef
+        evTextAnim = "{:.1f}".format(evAnim)
+        txt.set_text(textAnim + ' for 0\nEV = ' + evTextAnim)
+
+        # Set attack outome bar heights
+        for j in range(totAttUnits + 1):
+            rectsAtt[j].set_height(probGrids[i][-1][totAttUnits-j])
+
+        # Set defendar outcome bar heights
+        for j in range(totDefUnits + 1):
+            rectsDef[j].set_width(probGrids[i][:,-1][totDefUnits-j])
+
+    else:
+
+        pass
 
     return [im]
 
-anim = FuncAnimation(fig, animate, frames = totalUnits, interval = 1000, blit = False, repeat = False)
+init()
+anim = FuncAnimation(
+    fig, animate,
+    frames = simStepFrames + 
+             pauseFrames1 + 
+             simXFrames * simXTicks + 
+             pauseFrames2 +
+             animFrames * animTicks + 
+             pauseFrames3, 
+    interval = 1, blit = False, repeat = False)
 
-#plt.show()
+if saveGif:
+    anim.save(gifFile, writer='pillow', fps = 10)
+else:
+    plt.show()
 
-anim.save('AAMedium1.gif', writer='pillow', fps = 1)
+print('Done')

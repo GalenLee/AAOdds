@@ -60,7 +60,7 @@ def calcIteration(probGrid, totAttUnits, totDefUnits, attDists, defDists):
         for dIdx in range(totDefUnits):
             sumGrid[dIdx][aIdx] = 0
 
-    # For each cell do a randome walk.
+    # For each cell do a random walk.
     for aIdx in range(totAttUnits):
         for dIdx in range(totDefUnits):
             cellProb = probGrid[dIdx][aIdx]
@@ -73,3 +73,32 @@ def calcIteration(probGrid, totAttUnits, totDefUnits, attDists, defDists):
                 attDists[attRem], defDists[defRem])
 
     return sumGrid
+
+
+def runProbWalk(attUnits, defUnits):
+
+    # Total units
+    totAttUnits = len(attUnits) 
+    totDefUnits = len(defUnits)
+    totAttUnitsP1 = totAttUnits + 1
+    totDefUnitsP1 = totDefUnits + 1
+    totalUnits = totAttUnits + totDefUnits
+
+    # Calc dice roll distributions.
+    attDists = calcProbDist(attUnits)
+    defDists = calcProbDist(defUnits)
+
+    # Starting probability grid.  Set [0,0] to 1.0. 
+    # This is for all attackers and defenders remaining (i.e. prob 1.0).
+    # Notice grid[def][att].
+    probGrid = np.zeros((totDefUnitsP1, totAttUnitsP1), dtype = np.float64)
+    probGrid[0][0] = 1.0
+
+    # Calculate all iterations.
+    probGrids = []
+    probGrids.append(probGrid)
+    for i in range(totalUnits - 1): 
+        probGrid = calcIteration(probGrid, totAttUnits, totDefUnits, attDists, defDists)
+        probGrids.append(probGrid)
+
+    return probGrids
