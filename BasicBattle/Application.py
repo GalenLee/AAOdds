@@ -8,23 +8,27 @@ from matplotlib.animation import FuncAnimation
 from matplotlib import animation
 
 # Inputs
-attUnits = [3,3,1,1,1,1,1]
-defUnits = [4,2,2,2,2]
-#attUnits = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-#defUnits = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 
-pauseFrames1 = 11
+#attUnits = [4,3,3,3,1,1,1,1,1,1]
+#defUnits = [4,4,3,2,2,2,2,2]
+
+attUnits = [4, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+defUnits = [4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+pauseFrames1 = 15
 simXTicks = 10
-pauseFrames2 = 12
+
+pauseFrames2 = 30
+
 animFrames = 8
-animTicks = 10
-pauseFrames3 = 13
+animTicks = 20
+pauseFrames3 = 30
 
 pltSize = 10.0
-fntSize = 12.0
+fntSize = 9.0
 titleSize = 16.0
-saveGif = False
-gifFile = 'AA.gif'
+saveGif = True
+gifFile = 'temp.gif'
 
 # Total units
 totAttUnits = len(attUnits) 
@@ -40,13 +44,13 @@ probGrids = runProbWalk(attUnits, defUnits)
 countGrid = np.zeros((totDefUnitsP1, totAttUnitsP1), dtype = np.int32)
 countResults = []
 countGridsX = []
-#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 20)
+
 #XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 16)
 #XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 12)
-#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 8)
-#XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 4)
-XBattles(countGridsX, countResults, countGrid, attUnits, defUnits, 25, 1)
-XBattles(countGridsX, None, countGrid, attUnits, defUnits, 75, 1)
+XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 5)
+XBattles(None, countResults, countGrid, attUnits, defUnits, 1, 5)
+XBattles(countGridsX, countResults, countGrid, attUnits, defUnits, 8, 1)
+XBattles(countGridsX, None, countGrid, attUnits, defUnits, 90, 1)
 XBattles(countGridsX, None, countGrid, attUnits, defUnits, 150, 1)
 XBattles(countGridsX, None, countGrid, attUnits, defUnits, 250, 1)
 XBattles(countGridsX, None, countGrid, attUnits, defUnits, 500, 1)
@@ -55,13 +59,13 @@ XBattles(countGridsX, None, countGrid, attUnits, defUnits, 2500, 1)
 XBattles(countGridsX, None, countGrid, attUnits, defUnits, 5000, 1)
 XBattles(countGridsX, None, countGrid, attUnits, defUnits, 90000, 1)
 #XBattles(countGridsX, None, countGrid, attUnits, defUnits, 900000, 1)
-#XBattles(countGridsX, None, countGrid, attUnits, defUnits, 900000, 1)
+#XBattles(countGridsX, None, countGrid, attUnits, defUnits, 9000000, 1)
 
 ############
 ### Plot ###
 ############
 
-fig = plt.figure(facecolor=(.8, .8, .8), figsize=(pltSize, pltSize * .7))
+fig = plt.figure(facecolor=(.9, .9, .9), figsize=(pltSize, pltSize * .7))
 fig.suptitle('Axis and Allies Battle Outcomes', fontsize = titleSize)
 
 grid = plt.GridSpec(4, 5, hspace = 0.6, wspace = 0.6)
@@ -139,7 +143,7 @@ simXFrames = len(countGridsX)
 lastCountResultsGrid = None if simStepFrames == 0 else countResults[simStepFrames-1][0]
 maxCountForStepSim = 0 if simStepFrames == 0 else MaxExcludeStartCell(lastCountResultsGrid) * 1.25
 maxCountForStepBar = 0 if simStepFrames == 0 else max(max(lastCountResultsGrid[-1]), max(lastCountResultsGrid[:,-1]))
-factForStepBar = maxAttDef/maxCountForStepBar
+factForStepBar = 0 if maxCountForStepBar == 0 else maxAttDef/maxCountForStepBar
 rects = []
 
 def init():
